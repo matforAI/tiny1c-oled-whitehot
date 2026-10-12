@@ -11,13 +11,21 @@ fi
 
 echo "[1/5] Устанавливаем зависимости"
 apt-get update
-apt-get install -y python3 python3-numpy python3-pil python3-spidev \
-    python3-gpiozero i2c-tools
+apt-get install -y python3 python3-numpy python3-pil python3-spidev python3-rpi.gpio i2c-tools
 
 echo "[2/5] Включаем SPI и I2C"
 if command -v raspi-config >/dev/null 2>&1; then
     raspi-config nonint do_spi 0 || true
     raspi-config nonint do_i2c 0 || true
+else
+    BOOTCFG=""
+    for f in /boot/firmware/config.txt /boot/config.txt; do
+        if [ -f "$f" ]; then BOOTCFG="$f"; break; fi
+    done
+    if [ -n "$BOOTCFG" ]; then
+        grep -qE '^[[:space:]]*dtparam=spi=on' "$BOOTCFG" || echo 'dtparam=spi=on' >> "$BOOTCFG"
+        grep -qE '^[[:space:]]*dtparam=i2c_arm=on' "$BOOTCFG" || echo 'dtparam=i2c_arm=on' >> "$BOOTCFG"
+    fi
 fi
 
 echo "[3/5] Устанавливаем файлы"
