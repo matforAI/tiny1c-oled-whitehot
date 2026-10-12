@@ -1,0 +1,7 @@
+*.7z
+*.bak
+__pycache__/
+*.pyc
+OLED_Module_Code/
+test_oled.py
+start.sh
